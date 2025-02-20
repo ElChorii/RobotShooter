@@ -4,43 +4,33 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
+
 public class PlayerController : MonoBehaviour
 {
-    // Rigidbody of the player.
-    private Rigidbody rb;
+    private CharacterController controller;
+    private Vector3 playerVelocity;
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    //private InputAction lookAction;
 
-    // Movement along X and Y axes.
-    private float movementX;
-    private float movementY;
+    public float playerSpeed = 2;
 
-    // Speed at which the player moves.
-    public float speed = 0;
-
-    // Start is called before the first frame update.
     void Start()
     {
-        // Get and store the Rigidbody component attached to the player.
-        rb = GetComponent<Rigidbody>();
+        controller = GetComponent<CharacterController>();
+        playerInput = GetComponent<PlayerInput>();
+
+        moveAction = playerInput.actions["Move"];
+        //lookAction = playerInput.actions["Look"];
     }
 
-    // This function is called when a move input is detected.
-    void OnMove(InputValue movementValue)
+    private void Update()
     {
-        // Convert the input value into a Vector2 for movement.
-        Vector2 movementVector = movementValue.Get<Vector2>();
+        Vector2 input = moveAction.ReadValue<Vector2>();
+        Vector3 move = new Vector3(input.x, 0, input.y);
+        controller.Move(move * Time.deltaTime * playerSpeed);
 
-        // Store the X and Y components of the movement.
-        movementX = movementVector.x;
-        movementY = movementVector.y;
-    }
-
-    // FixedUpdate is called once per fixed frame-rate frame.
-    private void FixedUpdate()
-    {
-        // Create a 3D movement vector using the X and Y inputs.
-        Vector3 movement = new Vector3(movementX, 0.0f, movementY);
-
-        // Apply force to the Rigidbody to move the player.
-        rb.AddForce(movement * speed);
+        controller.Move(playerVelocity * Time.deltaTime);
     }
 }
