@@ -9,24 +9,42 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     private CharacterController controller;
-    private Vector3 playerVelocity;
     private PlayerInput playerInput;
-    private InputAction moveAction;
+    private Vector3 playerVelocity;
     private Transform cameraTransform;
+    private InputAction moveAction;
+    private InputAction shootAction;
+    
     //private InputAction lookAction;
 
     public float playerSpeed = 2;
+    private float rotationSpeed = 2f;
 
-    void Start()
+    void Awake()
     {
         controller = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         cameraTransform = Camera.main.transform;
 
         moveAction = playerInput.actions["Move"];
+        shootAction = playerInput.actions["Move"];
         //lookAction = playerInput.actions["Look"];
     }
 
+    private void OnEnable()
+    {
+        shootAction.performed += _ => ShootGun();
+    }
+
+    private void OnDisable()
+    {
+        shootAction.performed -= _ => ShootGun();
+    }
+
+    private void ShootGun()
+    {
+
+    }
     private void Update()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -37,7 +55,7 @@ public class PlayerController : MonoBehaviour
         controller.Move(playerVelocity * Time.deltaTime);
 
         // Que el robot rote con la camara
-        Quaternion rotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
-        //transform.rotation = Quaternion.Lerp();
+        Quaternion targetRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 }
