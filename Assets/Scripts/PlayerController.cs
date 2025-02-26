@@ -12,13 +12,22 @@ public class PlayerController : MonoBehaviour
     private PlayerInput playerInput;
     private Vector3 playerVelocity;
     private Transform cameraTransform;
+
     private InputAction moveAction;
     private InputAction shootAction;
-    
-    //private InputAction lookAction;
 
+    [SerializeField]
     public float playerSpeed = 2;
+    [SerializeField]
     private float rotationSpeed = 2f;
+    [SerializeField]
+    private GameObject bulletPrefab;
+    [SerializeField]
+    private Transform barrelTransform;
+    [SerializeField]
+    private Transform bulletParent;
+    [SerializeField]
+    private float bulletHitMissDistance = 25f;
 
     void Awake()
     {
@@ -27,8 +36,8 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
 
         moveAction = playerInput.actions["Move"];
-        shootAction = playerInput.actions["Move"];
-        //lookAction = playerInput.actions["Look"];
+        shootAction = playerInput.actions["Shoot"];
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void OnEnable()
@@ -43,8 +52,21 @@ public class PlayerController : MonoBehaviour
 
     private void ShootGun()
     {
-
+        RaycastHit hit;
+        GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, Quaternion.identity);
+        BulletController bulletController = bullet.GetComponent<BulletController>();
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, Mathf.Infinity))
+        {
+            bulletController.target = hit.point;
+            bulletController.hit = true;
+        }
+        else
+        {
+            bulletController.target = cameraTransform.position + cameraTransform.forward * bulletHitMissDistance;
+            bulletController.hit = false;
+        }
     }
+
     private void Update()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
