@@ -29,6 +29,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float bulletHitMissDistance = 25f;
 
+    //
+    public float speed = 5f; // Velocidad del jugador
+    public float tiltAmount = 10f; // Cuánto se inclina al moverse
+    public Transform elementoARotar; // El objeto que se inclinará
+
+    private Rigidbody rb;
+
+    //
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -37,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
         moveAction = playerInput.actions["Move"];
         shootAction = playerInput.actions["Shoot"];
-        Cursor.lockState = CursorLockMode.Locked;
+        
     }
 
     private void OnEnable()
@@ -79,5 +92,23 @@ public class PlayerController : MonoBehaviour
         // Que el robot rote con la camara
         Quaternion targetRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+        //////
+        // Capturar entrada del jugador
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+
+        // Aplicar movimiento
+        Vector3 movement = new Vector3(moveX, 0, moveZ) * speed;
+        rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
+
+        // Aplicar inclinación en base a la velocidad
+        Vector3 velocity = rb.velocity;
+        if (velocity.magnitude > 0.1f) // Evitar inclinación cuando está quieto
+        {
+            float tiltAngle = Mathf.Clamp(velocity.x * tiltAmount, -tiltAmount, tiltAmount);
+            elementoARotar.rotation = Quaternion.Euler(0, transform.eulerAngles.y, -tiltAngle);
+        }
     }
+
 }
