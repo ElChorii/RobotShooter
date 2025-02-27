@@ -31,7 +31,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float bulletHitMissDistance = 25f;
 
-    private int energiaDelBot = 100;
+    private float energiaDelBot = 100;
+    private float energiaDelBotRedondeada;
     private float tiempoDeRecarga = 0f;
     public TextMeshProUGUI textoDeEnergia;
 
@@ -73,20 +74,20 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, Quaternion.identity);
         BulletController bulletController = bullet.GetComponent<BulletController>();
-        if (energiaDelBot > 33f)
+        if (energiaDelBot >= 33f)
         {
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, Mathf.Infinity))
             {
                 bulletController.target = hit.point;
                 bulletController.hit = true;
-                energiaDelBot = energiaDelBot - 33;
+                energiaDelBot = energiaDelBot - 33.33f;
                 tiempoDeRecarga = 0;
             }
             else
             {
                 bulletController.target = cameraTransform.position + cameraTransform.forward * bulletHitMissDistance;
                 bulletController.hit = false;
-                energiaDelBot = energiaDelBot - 33;
+                energiaDelBot = energiaDelBot - 33.33f;
                 tiempoDeRecarga = 0;
             }
         }   
@@ -126,7 +127,7 @@ public class PlayerController : MonoBehaviour
         tiempoDeRecarga = tiempoDeRecarga + 1 * Time.deltaTime;
         if (tiempoDeRecarga > 10)
         {
-            energiaDelBot = energiaDelBot + 2; // Time.deltaTime;
+            energiaDelBot = energiaDelBot + 3 * Time.deltaTime;
         }
 
         // Que la energia no sobrepase el 100% y deje de recargar
@@ -135,12 +136,8 @@ public class PlayerController : MonoBehaviour
             energiaDelBot = 100;
             tiempoDeRecarga = 0;
         }
-        
-        // que cuando tienes 34 de energia y gastas 33, te lo aproxime a 0 directamente, ya que tener 1 de energia y tener 0 es practicamente lo mismo
-        if (energiaDelBot <= 1)
-        {
-            energiaDelBot = 0;
-        }
-        textoDeEnergia.text = (energiaDelBot + "%");
+
+        energiaDelBotRedondeada = Mathf.Round(energiaDelBot);
+        textoDeEnergia.text = (energiaDelBotRedondeada + "%");
     }
 }
