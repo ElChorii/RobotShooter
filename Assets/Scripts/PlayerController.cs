@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
 
@@ -29,14 +31,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float bulletHitMissDistance = 25f;
 
-    //
+    private int energiaDelBot = 100;
+    private float tiempoDeRecarga = 0f;
+    public TextMeshProUGUI textoDeEnergia;
+
+    
     public float speed = 5f; // Velocidad del jugador
     public float tiltAmount = 10f; // Cuánto se inclina al moverse
     public Transform elementoARotar; // El objeto que se inclinará
 
     private Rigidbody rb;
 
-    //
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -68,16 +73,23 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, Quaternion.identity);
         BulletController bulletController = bullet.GetComponent<BulletController>();
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, Mathf.Infinity))
+        if (energiaDelBot > 33f)
         {
-            bulletController.target = hit.point;
-            bulletController.hit = true;
-        }
-        else
-        {
-            bulletController.target = cameraTransform.position + cameraTransform.forward * bulletHitMissDistance;
-            bulletController.hit = false;
-        }
+            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, Mathf.Infinity))
+            {
+                bulletController.target = hit.point;
+                bulletController.hit = true;
+                energiaDelBot = energiaDelBot - 33;
+                tiempoDeRecarga = 0;
+            }
+            else
+            {
+                bulletController.target = cameraTransform.position + cameraTransform.forward * bulletHitMissDistance;
+                bulletController.hit = false;
+                energiaDelBot = energiaDelBot - 33;
+                tiempoDeRecarga = 0;
+            }
+        }   
     }
 
     private void Update()
@@ -109,6 +121,26 @@ public class PlayerController : MonoBehaviour
             float tiltAngle = Mathf.Clamp(velocity.x * tiltAmount, -tiltAmount, tiltAmount);
             elementoARotar.rotation = Quaternion.Euler(0, transform.eulerAngles.y, -tiltAngle);
         }
-    }
 
+        // Tiempo hasta que el bot empiece a recargar
+        tiempoDeRecarga = tiempoDeRecarga + 1 * Time.deltaTime;
+        if (tiempoDeRecarga > 10)
+        {
+            energiaDelBot = energiaDelBot + 2; // Time.deltaTime;
+        }
+
+        // Que la energia no sobrepase el 100% y deje de recargar
+        if (energiaDelBot > 100)
+        {
+            energiaDelBot = 100;
+            tiempoDeRecarga = 0;
+        }
+        
+        // que cuando tienes 34 de energia y gastas 33, te lo aproxime a 0 directamente, ya que tener 1 de energia y tener 0 es practicamente lo mismo
+        if (energiaDelBot <= 1)
+        {
+            energiaDelBot = 0;
+        }
+        textoDeEnergia.text = (energiaDelBot + "%");
+    }
 }
