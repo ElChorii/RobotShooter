@@ -92,7 +92,6 @@ public class PlayerController : MonoBehaviour
             }
         }   
     }
-
     private void Update()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -125,7 +124,7 @@ public class PlayerController : MonoBehaviour
 
         // Tiempo hasta que el bot empiece a recargar
         tiempoDeRecarga = tiempoDeRecarga + 1 * Time.deltaTime;
-        if (tiempoDeRecarga > 10)
+        if (tiempoDeRecarga >= 10)
         {
             energiaDelBot = energiaDelBot + 3 * Time.deltaTime;
         }
@@ -136,7 +135,6 @@ public class PlayerController : MonoBehaviour
             energiaDelBot = 100;
             tiempoDeRecarga = 0;
         }
-
         energiaDelBotRedondeada = Mathf.Round(energiaDelBot);
         textoDeEnergia.text = (energiaDelBotRedondeada + "%");
     }
