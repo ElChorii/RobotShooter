@@ -10,26 +10,52 @@ public class BulletController : MonoBehaviour
     private GameObject bulletDecal;
 
     private float speed = 25f;
-    private float timeToDestroy = 3f;
+    private float timeToDestroy = 20f;
 
     public Vector3 target { get; set; }
     public bool hit { get; set; }
-    
+
+    Vector3 frontOfObject;
+    Rigidbody bulletRigidbody;
+    [SerializeField] GameObject bulletView;
+
     // Start is called before the first frame update
-    private void OnEnable()
+    private void Start()
     {
-        Destroy(gameObject, timeToDestroy);
+        bulletRigidbody = GetComponent<Rigidbody>();
+        bulletView = gameObject.transform.GetChild(0).gameObject;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-        if (Vector3.Distance(transform.position, target) < 0.01f)
+        frontOfObject = transform.forward;
+    }
+
+    private void Update()
+    {
+        timeToDestroy -= Time.deltaTime;
+        if (timeToDestroy <= 0)
         {
+            bulletView.transform.GetComponent<BulletDirection>().enemySelected = null;
             Destroy(gameObject);
         }
     }
+
+    private void FixedUpdate()
+    {
+        if (bulletView.GetComponent<BulletDirection>().enemySelected == null)
+        {
+            bulletRigidbody.velocity = frontOfObject * speed;
+        }
+        else
+        {
+            bulletRigidbody.velocity = transform.up * -1 * 30;
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, bulletView.transform.rotation, 1f);
+            bulletRigidbody.velocity = transform.forward * speed;
+        }
+    }
+
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Player"))

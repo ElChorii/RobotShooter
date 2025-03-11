@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.Timeline;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
 
@@ -43,6 +44,11 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rb;
 
+    [SerializeField] private Vector3 positionAddition;
+
+    [SerializeField] LayerMask enemiesCapa;
+    [SerializeField] float deteccionArea;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -71,10 +77,35 @@ public class PlayerController : MonoBehaviour
 
     private void ShootGun()
     {
-        RaycastHit hit;
-        GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, Quaternion.identity);
+        //RaycastHit hit;
+
+        GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, transform.rotation);
+        bullet.transform.position = transform.position + transform.up * positionAddition.y + transform.forward * positionAddition.z + transform.right * positionAddition.x;
         BulletController bulletController = bullet.GetComponent<BulletController>();
-        if (energiaDelBot >= 33f)
+
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, deteccionArea, enemiesCapa);
+
+        GameObject searchEnemy = null;
+        float minimumDistance = Mathf.Infinity;
+
+        foreach (Collider hitCollider in hitColliders)
+        {
+            float distance = Vector3.Distance(transform.position, hitCollider.transform.position);
+
+            if (distance < minimumDistance)
+            {
+                minimumDistance = distance;
+                searchEnemy = hitCollider.gameObject;
+            }
+        }
+
+        if (searchEnemy != null)
+        {
+            bullet.GetComponentInChildren<BulletDirection>().enemySelected = searchEnemy;
+        }
+
+
+        /*if (energiaDelBot >= 33f)
         {
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, Mathf.Infinity))
             {
@@ -90,7 +121,7 @@ public class PlayerController : MonoBehaviour
                 energiaDelBot = energiaDelBot - 33.33f;
                 tiempoDeRecarga = 0;
             }
-        }   
+        } */
     }
     private void Update()
     {
