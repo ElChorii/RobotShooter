@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemigos
   - Mapa
+  - Bala
   layers:
   - Default
   - TransparentFX

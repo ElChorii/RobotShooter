@@ -11,6 +11,10 @@ using UnityEngine.Timeline;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController instance;
+
+    public bool partidaPerdida = false;
+    
     private CharacterController controller;
     private PlayerInput playerInput;
     private Vector3 playerVelocity;
@@ -56,6 +60,15 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+        
         controller = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         cameraTransform = Camera.main.transform;
