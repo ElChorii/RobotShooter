@@ -27,10 +27,10 @@ public class PlayerController : MonoBehaviour
     private GameObject bulletPrefab;
     [SerializeField]
     private Transform barrelTransform;
-    [SerializeField]
-    private Transform bulletParent;
-    [SerializeField]
-    private float bulletHitMissDistance = 25f;
+    //[SerializeField]
+    //private Transform bulletParent;
+    //[SerializeField]
+    //private float bulletHitMissDistance = 25f;
 
     private float energiaDelBot = 100;
     private float energiaDelBotRedondeada;

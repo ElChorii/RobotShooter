@@ -63,8 +63,12 @@ public class BulletController : MonoBehaviour
             Physics.IgnoreCollision(GetComponent<Collider>(), other.collider);
             return;
         }
-        ContactPoint contact = other.GetContact(0);
-        GameObject.Instantiate(bulletDecal, contact.point, Quaternion.LookRotation(contact.normal));
+        
+        if (other.gameObject.CompareTag("Mapa"))
+        {
+            ContactPoint contact = other.GetContact(0);
+            GameObject.Instantiate(bulletDecal, contact.point, Quaternion.LookRotation(contact.normal));
+        }
         Destroy(gameObject);
     }
 }
